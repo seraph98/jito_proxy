@@ -19,6 +19,17 @@ var jito_urls = []string{
 	"https://slc.mainnet.block-engine.jito.wtf/api/v1/transactions?bundleOnly=true",
 }
 
+type JitoResponse struct {
+	Jsonrpc string `json:"jsonrpc"`
+	Error   struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Data    any    `json:"data"`
+	} `json:"error"`
+	Result string `json:"result"`
+	ID     string `json:"id"`
+}
+
 func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	var data map[string]interface{}
 	decoder := json.NewDecoder(r.Body)
@@ -45,7 +56,8 @@ func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func sendJito(data map[string]interface{}) (interface{}, int) {
+func sendJito(data map[string]interface{}) (JitoResponse, int) {
+	var resp JitoResponse
 	jito_url := jito_urls[rand.Intn(len(jito_urls))]
 
 	// Choose a random proxy from the list
@@ -55,13 +67,15 @@ func sendJito(data map[string]interface{}) (interface{}, int) {
 	// Prepare the data for the request
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("error marshalling data: %v", err), http.StatusInternalServerError
+		resp.Error.Message = fmt.Sprintf("error marshalling data: %v", err)
+		return resp, http.StatusInternalServerError
 	}
 
 	// Create the POST request
 	req, err := http.NewRequest("POST", jito_url, strings.NewReader(string(jsonData)))
 	if err != nil {
-		return fmt.Errorf("error creating request: %v", err), http.StatusInternalServerError
+		resp.Error.Message = fmt.Sprintf("error creating request: %v", err)
+		return resp, http.StatusInternalServerError
 	}
 
 	// Add necessary headers
@@ -72,7 +86,8 @@ func sendJito(data map[string]interface{}) (interface{}, int) {
 		req.URL.Host = proxy
 		proxyURL, err := url.Parse(proxy)
 		if err != nil {
-			return fmt.Errorf("error parsing proxy URL: %v", err), http.StatusInternalServerError
+			resp.Error.Message = fmt.Sprintf("error parsing proxy URL: %v", err)
+			return resp, http.StatusInternalServerError
 		}
 		transport := &http.Transport{
 			Proxy: http.ProxyURL(proxyURL),
@@ -81,29 +96,26 @@ func sendJito(data map[string]interface{}) (interface{}, int) {
 	}
 
 	// Send the request using the client
-	resp, err := client.Do(req)
+	raw_resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error sending request through proxy %s: %v", proxy, err), http.StatusInternalServerError
+		resp.Error.Message = fmt.Sprintf("error sending request through proxy %s: %v", proxy, err)
+		return resp, http.StatusInternalServerError
 	}
-	defer resp.Body.Close()
+	defer raw_resp.Body.Close()
 
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(raw_resp.Body)
 	if err != nil {
-		return fmt.Errorf("error reading response body: %v", err), http.StatusInternalServerError
+		resp.Error.Message = fmt.Sprintf("error reading response body: %v", err)
+		return resp, http.StatusInternalServerError
 	}
 
 	// If the response is in JSON format, we try to parse it into a map
-	if resp.Header.Get("Content-Type") == "application/json" {
-		var jsonResponse map[string]interface{}
-		if err := json.Unmarshal(body, &jsonResponse); err != nil {
-			return fmt.Errorf("error unmarshalling JSON response: %v", err), http.StatusInternalServerError
-		}
-		return jsonResponse, resp.StatusCode
+	if err := json.Unmarshal(body, &resp); err != nil {
+		resp.Error.Message = fmt.Sprintf("error unmarshalling JSON response: %v", err)
+		return resp, http.StatusInternalServerError
 	}
-
-	// If not JSON, return the raw body as a string
-	return body, resp.StatusCode
+	return resp, raw_resp.StatusCode
 }
 
 func main() {
