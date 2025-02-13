@@ -41,19 +41,7 @@ func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	resp, status_code := sendJito(data)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status_code)
-
-	// Check if the response is a string or raw JSON data
-	switch resp := resp.(type) {
-	case string:
-		// If it's a string, return it directly
-		w.Write([]byte(resp))
-	case []byte:
-		// If it's raw JSON, write the raw bytes directly
-		w.Write(resp)
-	default:
-		// Otherwise, assume it's a map and return it as JSON
-		json.NewEncoder(w).Encode(resp)
-	}
+	json.NewEncoder(w).Encode(resp)
 }
 
 func sendJito(data map[string]interface{}) (JitoResponse, int) {
