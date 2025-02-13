@@ -11,7 +11,7 @@ import (
 var (
 	qps = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "proxy_qps",
+			Name: "proxy_qps_v2",
 			Help: "proxy qps",
 		},
 		[]string{"method", "status"},
@@ -19,7 +19,7 @@ var (
 
 	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name:    "request_latency_seconds",
+			Name:    "request_latency_seconds_v2",
 			Help:    "Histogram of request latencies",
 			Buckets: prometheus.DefBuckets,
 		},
