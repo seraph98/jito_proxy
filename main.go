@@ -80,7 +80,7 @@ func sendJito(data map[string]interface{}) (interface{}, int) {
 		return fmt.Errorf("error reading response body: %v", err), http.StatusInternalServerError
 	}
 	// Return the response body as a string or raw data
-	return string(body), resp.StatusCode
+	return body, resp.StatusCode
 }
 
 func main() {
