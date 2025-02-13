@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
@@ -74,6 +75,7 @@ func init() {
 	go func() {
 		for {
 			pushData("task")
+			time.Sleep(time.Second * 5)
 		}
 	}()
 }
