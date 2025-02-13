@@ -106,7 +106,7 @@ func sendJito(data map[string]interface{}) (JitoResponse, int) {
 }
 
 func main() {
-	http.HandleFunc("/send_transaction", sendTransactionHandler)
+	http.HandleFunc("/", sendTransactionHandler)
 
 	// Start the server
 	fmt.Println("Starting the Go server on port 6555...")
