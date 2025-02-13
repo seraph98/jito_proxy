@@ -11,7 +11,7 @@ import (
 var (
 	qps = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "proxy_qps_v2",
+			Name: "proxy_qps",
 			Help: "proxy qps",
 		},
 		[]string{"method", "status"},
@@ -27,12 +27,6 @@ var (
 	)
 )
 
-func init() {
-	// 注册指标
-	prometheus.MustRegister(qps)
-	prometheus.MustRegister(latencyHistogram)
-}
-
 func emitQps(method, status string) {
 	qps.WithLabelValues(method, status).Inc()
 }
@@ -42,16 +36,18 @@ func emitLatency(latency float64, method, status string) {
 }
 
 func pushData(task string) {
+	defer func() {
+		recover()
+	}()
 	// 获取主机名
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Fatal("Could not get hostname: ", err)
+		log.Println("Could not get hostname: ", err)
+		return
 	}
 
 	// 将指标推送到 Pushgateway
 	err = push.New(pushGatewayURL, hostname+task).
-		Collector(totalSol).
-		Collector(page404).
 		Collector(qps).
 		Collector(latencyHistogram).
 		Push()
@@ -69,4 +65,15 @@ func test() {
 
 	// 推送数据到 Pushgateway
 	pushData("task")
+}
+
+func init() {
+	// 注册指标
+	prometheus.MustRegister(qps)
+	prometheus.MustRegister(latencyHistogram)
+	go func() {
+		for {
+			pushData("task")
+		}
+	}()
 }
