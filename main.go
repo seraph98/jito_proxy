@@ -28,8 +28,21 @@ func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, status_code := sendJito(data)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status_code)
-	json.NewEncoder(w).Encode(resp)
+
+	// Check if the response is a string or raw JSON data
+	switch resp := resp.(type) {
+	case string:
+		// If it's a string, return it directly
+		w.Write([]byte(resp))
+	case []byte:
+		// If it's raw JSON, write the raw bytes directly
+		w.Write(resp)
+	default:
+		// Otherwise, assume it's a map and return it as JSON
+		json.NewEncoder(w).Encode(resp)
+	}
 }
 
 func sendJito(data map[string]interface{}) (interface{}, int) {
@@ -57,9 +70,9 @@ func sendJito(data map[string]interface{}) (interface{}, int) {
 	// Assign proxy if not using local address
 	if proxy != "" {
 		req.URL.Host = proxy
-		proxyURL, err := url.Parse(proxy) // Replace with your proxy address
+		proxyURL, err := url.Parse(proxy)
 		if err != nil {
-			return fmt.Errorf("Error parsing proxy URL: %v", err), http.StatusInternalServerError
+			return fmt.Errorf("error parsing proxy URL: %v", err), http.StatusInternalServerError
 		}
 		transport := &http.Transport{
 			Proxy: http.ProxyURL(proxyURL),
@@ -79,7 +92,17 @@ func sendJito(data map[string]interface{}) (interface{}, int) {
 	if err != nil {
 		return fmt.Errorf("error reading response body: %v", err), http.StatusInternalServerError
 	}
-	// Return the response body as a string or raw data
+
+	// If the response is in JSON format, we try to parse it into a map
+	if resp.Header.Get("Content-Type") == "application/json" {
+		var jsonResponse map[string]interface{}
+		if err := json.Unmarshal(body, &jsonResponse); err != nil {
+			return fmt.Errorf("error unmarshalling JSON response: %v", err), http.StatusInternalServerError
+		}
+		return jsonResponse, resp.StatusCode
+	}
+
+	// If not JSON, return the raw body as a string
 	return body, resp.StatusCode
 }
 
