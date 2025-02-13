@@ -109,8 +109,8 @@ func main() {
 	http.HandleFunc("/send_transaction", sendTransactionHandler)
 
 	// Start the server
-	fmt.Println("Starting the Go server on port 5000...")
-	if err := http.ListenAndServe(":5000", nil); err != nil {
+	fmt.Println("Starting the Go server on port 6555...")
+	if err := http.ListenAndServe(":6555", nil); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }
