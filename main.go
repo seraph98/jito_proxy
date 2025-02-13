@@ -71,7 +71,6 @@ func sendJito(data map[string]interface{}) (JitoResponse, int) {
 
 	// Assign proxy if not using local address
 	if proxy != "" {
-		req.URL.Host = proxy
 		proxyURL, err := url.Parse(proxy)
 		if err != nil {
 			resp.Error.Message = fmt.Sprintf("error parsing proxy URL: %v", err)
