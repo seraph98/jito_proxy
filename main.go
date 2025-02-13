@@ -44,8 +44,13 @@ func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func sendJito(data map[string]interface{}) (JitoResponse, int) {
-	var resp JitoResponse
+func sendJito(data map[string]interface{}) (resp JitoResponse, status int) {
+	start := time.Now().UnixMilli()
+	defer func() {
+		end := time.Now().UnixMilli()
+		emitQps("send_jito", fmt.Sprintf("%d", status))
+		emitLatency(float64(end-start)/1000, "send_jito", fmt.Sprintf("%d", status))
+	}()
 	jito_url := jito_urls[rand.Intn(len(jito_urls))]
 
 	// Choose a random proxy from the list
