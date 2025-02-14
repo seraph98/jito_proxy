@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# 定义需要监控的进程名称
+PROCESS_NAME="jito_proxy"
+# 定义需要检查的脚本路径
+CS_SCRIPT="~/jito_proxy/jito_proxy"
+# 定义重启命令
+RESTART_COMMAND="/root/solana_proxy/restart_proxy.sh"
+
+# 创建一个无限循环来监控进程
+while true; do
+    # 检查 node cs.js 是否存在
+    if ! pgrep -f "$PROCESS_NAME" > /dev/null; then
+        echo "$(date): $PROCESS_NAME is not running. Restarting..."
+        # 如果进程不存在，执行重启命令
+        cd ~/solana_proxy
+        $RESTART_COMMAND
+    	sleep 5
+    else
+        echo "$(date): $PROCESS_NAME is running."
+    fi
+
+    # 检查 /root/solana_proxy/cs.js 是否有四个进程
+    process_count=$(pgrep -f "$CS_SCRIPT" | wc -l)
+
+    if [ "$process_count" -ne 4 ]; then
+        echo "$(date): $CS_SCRIPT does not have exactly 4 processes. Restarting..."
+        # 如果进程数量不为4，执行重启命令
+        cd ~/solana_proxy
+        $RESTART_COMMAND
+    	sleep 5
+    else
+        echo "$(date): $CS_SCRIPT has exactly 4 processes."
+    fi
+
+    # 每隔 5 秒检查一次（可以根据需要调整时间）
+    sleep 5
+done
