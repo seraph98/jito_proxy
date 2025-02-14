@@ -44,7 +44,8 @@ func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func sendJito(data map[string]interface{}) (resp JitoResponse, status int) {
+func sendJito(data map[string]interface{}) (jito_resp any, status int) {
+	var resp JitoResponse
 	start := time.Now().UnixMilli()
 	defer func() {
 		end := time.Now().UnixMilli()
@@ -103,11 +104,11 @@ func sendJito(data map[string]interface{}) (resp JitoResponse, status int) {
 	}
 
 	// If the response is in JSON format, we try to parse it into a map
-	if err := json.Unmarshal(body, &resp); err != nil {
+	if err := json.Unmarshal(body, &jito_resp); err != nil {
 		resp.Error.Message = fmt.Sprintf("error unmarshalling JSON response: %v", err)
 		return resp, http.StatusInternalServerError
 	}
-	return resp, raw_resp.StatusCode
+	return jito_resp, raw_resp.StatusCode
 }
 
 func main() {
