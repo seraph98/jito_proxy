@@ -3,7 +3,7 @@
 # 定义需要监控的进程名称
 PROCESS_NAME="jito_proxy"
 # 定义重启命令
-RESTART_COMMAND="~/jito_proxy/watchdog_jito.sh"
+RESTART_COMMAND="~/jito_proxy/restart.sh"
 
 # 创建一个无限循环来监控进程
 while true; do
@@ -11,7 +11,6 @@ while true; do
     if ! pgrep -f "$PROCESS_NAME" > /dev/null; then
         echo "$(date): $PROCESS_NAME is not running. Restarting..."
         # 如果进程不存在，执行重启命令
-        cd ~/jito_proxy
         $RESTART_COMMAND
     	sleep 5
     else
