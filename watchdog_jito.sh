@@ -3,7 +3,7 @@
 # 定义需要监控的进程名称
 PROCESS_NAME="jito_proxy"
 # 定义重启命令
-RESTART_COMMAND="~/jito_proxy/watchdog_jito_proxy.sh"
+RESTART_COMMAND="~/jito_proxy/watchdog_jito.sh"
 
 # 创建一个无限循环来监控进程
 while true; do
