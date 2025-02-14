@@ -27,7 +27,7 @@ type JitoResponse struct {
 		Data    any    `json:"data"`
 	} `json:"error"`
 	Result string `json:"result"`
-	ID     int    `json:"id"`
+	ID     string `json:"id"`
 }
 
 func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
