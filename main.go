@@ -26,22 +26,8 @@ type JitoResponse struct {
 		Message string `json:"message"`
 		Data    any    `json:"data"`
 	} `json:"error"`
-	Result struct {
-		Context struct {
-			Slot int `json:"slot"`
-		} `json:"context"`
-		Value struct {
-			Err        interface{} `json:"err"`
-			Accounts   interface{} `json:"accounts"`
-			Logs       []string    `json:"logs"`
-			ReturnData struct {
-				Data      []string `json:"data"`
-				ProgramID string   `json:"programId"`
-			} `json:"returnData"`
-			UnitsConsumed int `json:"unitsConsumed"`
-		} `json:"value"`
-	} `json:"result"`
-	ID int `json:"id"`
+	Result string `json:"result"`
+	ID     int    `json:"id"`
 }
 
 func sendTransactionHandler(w http.ResponseWriter, r *http.Request) {
