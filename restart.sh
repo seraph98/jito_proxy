@@ -14,4 +14,6 @@ for pid in $processes; do
     kill -9 $pid
 done
 
+sleep 2
+
 nohup ./jito_proxy > /dev/null 2>&1 &
