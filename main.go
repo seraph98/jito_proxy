@@ -12,11 +12,11 @@ import (
 )
 
 var jito_urls = []string{
-	"https://amsterdam.mainnet.block-engine.jito.wtf/api/v1/transactions",
-	"https://frankfurt.mainnet.block-engine.jito.wtf/api/v1/transactions",
-	"https://ny.mainnet.block-engine.jito.wtf/api/v1/transactions",
-	"https://tokyo.mainnet.block-engine.jito.wtf/api/v1/transactions",
-	"https://slc.mainnet.block-engine.jito.wtf/api/v1/transactions",
+	"https://amsterdam.mainnet.block-engine.jito.wtf/api/v1/transactions?bundleOnly=true",
+	"https://frankfurt.mainnet.block-engine.jito.wtf/api/v1/transactions?bundleOnly=true",
+	"https://ny.mainnet.block-engine.jito.wtf/api/v1/transactions?bundleOnly=true",
+	"https://tokyo.mainnet.block-engine.jito.wtf/api/v1/transactions?bundleOnly=true",
+	"https://slc.mainnet.block-engine.jito.wtf/api/v1/transactions?bundleOnly=true",
 }
 
 type JitoResponse struct {
