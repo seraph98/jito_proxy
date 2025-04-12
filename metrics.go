@@ -75,7 +75,7 @@ func init() {
 	go func() {
 		for {
 			pushData("task")
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 60)
 		}
 	}()
 }
